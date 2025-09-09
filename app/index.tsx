@@ -12,6 +12,7 @@ import { Text } from "@/components/Themed";
 import { Button } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { testSupabaseConnection } from "@/lib/testSupabase";
+import { useLocalization } from "@/constants/localization";
 import {
   useThemeColors,
   spacing,
@@ -22,26 +23,27 @@ import {
 export default function WelcomeScreen() {
   const { user, loading } = useAuth();
   const { colors, isDark } = useThemeColors();
+  const { t, isRTL } = useLocalization();
 
   const handleTestSupabase = async () => {
-    Alert.alert("🔧 Testing...", "Checking Supabase connection...");
+    Alert.alert(t("supabase.testing"), t("supabase.checkingConnection"));
 
     const result = await testSupabaseConnection();
     if (result.success) {
       Alert.alert(
-        "✅ Success",
-        result.message || "Supabase connection is working!",
-        [{ text: "Great!", style: "default" }]
+        t("supabase.connectionSuccess"),
+        result.message || t("supabase.connectionWorking"),
+        [{ text: t("supabase.great"), style: "default" }]
       );
     } else {
-      Alert.alert("❌ Connection Failed", result.error, [
-        { text: "OK", style: "default" },
+      Alert.alert(t("supabase.connectionFailed"), result.error, [
+        { text: t("common.ok"), style: "default" },
         {
-          text: "Setup Guide",
+          text: t("supabase.setupGuide"),
           onPress: () =>
             Alert.alert(
-              "📋 Setup Steps",
-              "1. Create Supabase project at supabase.com\n2. Copy URL and API key\n3. Update .env file\n4. Run SQL schema\n5. Restart app"
+              t("supabase.setupSteps"),
+              t("supabase.setupInstructions")
             ),
         },
       ]);
@@ -53,16 +55,16 @@ export default function WelcomeScreen() {
     if (!loading && user) {
       switch (user.user_type) {
         case "customer":
-          router.replace("/(customer)");
+          router.replace("/(customer)" as any);
           break;
         case "vendor":
-          router.replace("/(vendor)");
+          router.replace("/(vendor)" as any);
           break;
         case "admin":
-          router.replace("/(vendor)"); // Redirect admin to vendor for now
+          router.replace("/(vendor)" as any); // Redirect admin to vendor for now
           break;
         default:
-          router.replace("/(customer)");
+          router.replace("/(customer)" as any);
       }
     }
   }, [user, loading]);
@@ -71,7 +73,7 @@ export default function WelcomeScreen() {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Text style={[styles.loadingText, { color: colors.foreground }]}>
-          Loading...
+          {t("landing.loading")}
         </Text>
       </View>
     );
@@ -90,18 +92,18 @@ export default function WelcomeScreen() {
           resizeMode="contain"
         />
         <Text style={[styles.title, { color: colors.foreground }]}>
-          Homemade Food Marketplace
+          {t("landing.title")}
         </Text>
         <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-          Discover delicious homemade meals from local cooks
+          {t("landing.subtitle")}
         </Text>
       </View>
 
       <View style={styles.buttonContainer}>
         <View style={styles.buttonWrapper}>
           <Button
-            title="I'm a Customer"
-            onPress={() => router.push("/(auth)/sign-in?type=customer")}
+            title={t("landing.customerButton")}
+            onPress={() => router.push("/(auth)/sign-in?type=customer" as any)}
             variant="secondary"
             size="md"
             fullWidth
@@ -110,14 +112,14 @@ export default function WelcomeScreen() {
           <Text
             style={[styles.buttonSubtext, { color: colors.mutedForeground }]}
           >
-            Browse and order meals
+            {t("landing.customerSubtext")}
           </Text>
         </View>
 
         <View style={styles.buttonWrapper}>
           <Button
-            title="I'm a Cook"
-            onPress={() => router.push("/(auth)/sign-in?type=vendor")}
+            title={t("landing.cookButton")}
+            onPress={() => router.push("/(auth)/sign-in?type=vendor" as any)}
             variant="primary"
             size="md"
             fullWidth
@@ -126,15 +128,15 @@ export default function WelcomeScreen() {
           <Text
             style={[styles.buttonSubtext, { color: colors.mutedForeground }]}
           >
-            Sell your homemade food
+            {t("landing.cookSubtext")}
           </Text>
         </View>
       </View>
 
       <View style={styles.footer}>
-        <Pressable onPress={() => router.push("/(auth)/sign-up")}>
+        <Pressable onPress={() => router.push("/(auth)/sign-up" as any)}>
           <Text style={[styles.linkText, { color: colors.primary }]}>
-            Don't have an account? Sign up
+            {t("landing.signUpLink")}
           </Text>
         </Pressable>
 
@@ -142,7 +144,9 @@ export default function WelcomeScreen() {
           style={[styles.testButton, { backgroundColor: colors.success }]}
           onPress={handleTestSupabase}
         >
-          <Text style={styles.testButtonText}>🔧 Test Supabase Connection</Text>
+          <Text style={styles.testButtonText}>
+            {t("landing.testConnection")}
+          </Text>
         </Pressable>
       </View>
     </View>

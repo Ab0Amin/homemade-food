@@ -12,6 +12,7 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { AuthProvider } from "@/hooks/useAuth";
+import { LocalizationProvider } from "@/constants/localization";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -48,9 +49,11 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
+    <LocalizationProvider>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </LocalizationProvider>
   );
 }
 

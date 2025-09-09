@@ -87,16 +87,11 @@ export default function VendorMealsScreen() {
                       </Text>
                     </View>
                     <View style={styles.mealStatus}>
-                      <Badge
-                        status={meal.is_available ? "active" : "inactive"}
-                        size="sm"
-                      >
+                      <Badge size="sm">
                         {meal.is_available ? "Available" : "Unavailable"}
                       </Badge>
                       {!meal.is_approved && (
-                        <Badge status="pending" size="sm">
-                          Pending Approval
-                        </Badge>
+                        <Badge size="sm">Pending Approval</Badge>
                       )}
                     </View>
                   </View>

@@ -1,15 +1,22 @@
 import React, { useState } from "react";
-import { StyleSheet, Pressable, Alert, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import {
+  StyleSheet,
+  Pressable,
+  Alert,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { router } from "expo-router";
 import { Text, View } from "@/components/Themed";
-import { 
-  Button, 
-  Input, 
-  Card, 
-  CardHeader, 
+import {
+  Button,
+  Input,
+  Card,
+  CardHeader,
   CardContent,
   UserTypeSelector,
-  Checkbox 
+  Checkbox,
 } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocalization } from "@/constants/localization";
@@ -31,7 +38,7 @@ export default function SignUpScreen() {
   const { signUp } = useAuth();
   const { t, isRTL } = useLocalization();
   const { colors } = useThemeColors();
-  
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -42,7 +49,7 @@ export default function SignUpScreen() {
     userType: "customer" as UserType,
     acceptTerms: false,
   });
-  
+
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
 
@@ -51,41 +58,41 @@ export default function SignUpScreen() {
 
     // Email validation
     if (!formData.email) {
-      newErrors.email = t('auth.emailRequired');
+      newErrors.email = t("auth.emailRequired");
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = t('auth.emailInvalid');
+      newErrors.email = t("auth.emailInvalid");
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = t('auth.passwordRequired');
+      newErrors.password = t("auth.passwordRequired");
     } else if (formData.password.length < 6) {
-      newErrors.password = t('auth.passwordTooShort');
+      newErrors.password = t("auth.passwordTooShort");
     }
 
     // Confirm password validation
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = t('auth.confirmPasswordRequired');
+      newErrors.confirmPassword = t("auth.confirmPasswordRequired");
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = t('auth.passwordsDontMatch');
+      newErrors.confirmPassword = t("auth.passwordsDontMatch");
     }
 
     // Name validation
     if (!formData.firstName) {
-      newErrors.firstName = t('auth.firstNameRequired');
+      newErrors.firstName = t("auth.firstNameRequired");
     }
     if (!formData.lastName) {
-      newErrors.lastName = t('auth.lastNameRequired');
+      newErrors.lastName = t("auth.lastNameRequired");
     }
 
     // Phone validation
     if (!formData.phoneNumber) {
-      newErrors.phoneNumber = t('auth.phoneRequired');
+      newErrors.phoneNumber = t("auth.phoneRequired");
     }
 
     // Terms validation
     if (!formData.acceptTerms) {
-      newErrors.acceptTerms = t('auth.termsRequired');
+      newErrors.acceptTerms = t("auth.termsRequired");
     }
 
     setErrors(newErrors);
@@ -106,15 +113,15 @@ export default function SignUpScreen() {
     setLoading(false);
 
     if (error) {
-      Alert.alert(t('auth.signUpError'), error.message);
+      Alert.alert(t("auth.signUpError"), error.message);
     } else {
       Alert.alert(
-        t('auth.signUpSuccess'),
+        t("auth.signUpSuccess"),
         "Please check your email to verify your account.",
         [
           {
-            text: t('common.ok'),
-            onPress: () => router.replace('/'),
+            text: t("common.ok"),
+            onPress: () => router.replace("/"),
           },
         ]
       );
@@ -122,19 +129,19 @@ export default function SignUpScreen() {
   };
 
   const updateFormData = (field: keyof typeof formData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field as keyof FormErrors]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -142,7 +149,7 @@ export default function SignUpScreen() {
         <Card style={styles.formCard}>
           <CardHeader>
             <Text style={[styles.title, { color: colors.foreground }]}>
-              {t('auth.createAccount')}
+              {t("auth.createAccount")}
             </Text>
             <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
               Join our homemade food community
@@ -154,18 +161,18 @@ export default function SignUpScreen() {
             <View style={[styles.row, isRTL && styles.rowRTL]}>
               <View style={styles.halfWidth}>
                 <Input
-                  label={t('auth.firstName')}
+                  label={t("auth.firstName")}
                   value={formData.firstName}
-                  onChangeText={(text) => updateFormData('firstName', text)}
+                  onChangeText={(text) => updateFormData("firstName", text)}
                   error={errors.firstName}
                   placeholder="John"
                 />
               </View>
               <View style={styles.halfWidth}>
                 <Input
-                  label={t('auth.lastName')}
+                  label={t("auth.lastName")}
                   value={formData.lastName}
-                  onChangeText={(text) => updateFormData('lastName', text)}
+                  onChangeText={(text) => updateFormData("lastName", text)}
                   error={errors.lastName}
                   placeholder="Doe"
                 />
@@ -174,9 +181,9 @@ export default function SignUpScreen() {
 
             {/* Email */}
             <Input
-              label={t('auth.email')}
+              label={t("auth.email")}
               value={formData.email}
-              onChangeText={(text) => updateFormData('email', text)}
+              onChangeText={(text) => updateFormData("email", text)}
               error={errors.email}
               keyboardType="email-address"
               autoCapitalize="none"
@@ -185,9 +192,9 @@ export default function SignUpScreen() {
 
             {/* Phone Number */}
             <Input
-              label={t('auth.phoneNumber')}
+              label={t("auth.phoneNumber")}
               value={formData.phoneNumber}
-              onChangeText={(text) => updateFormData('phoneNumber', text)}
+              onChangeText={(text) => updateFormData("phoneNumber", text)}
               error={errors.phoneNumber}
               keyboardType="phone-pad"
               placeholder="+1 (555) 123-4567"
@@ -195,18 +202,18 @@ export default function SignUpScreen() {
 
             {/* Password Fields */}
             <Input
-              label={t('auth.password')}
+              label={t("auth.password")}
               value={formData.password}
-              onChangeText={(text) => updateFormData('password', text)}
+              onChangeText={(text) => updateFormData("password", text)}
               error={errors.password}
               secureTextEntry
               placeholder="••••••••"
             />
 
             <Input
-              label={t('auth.confirmPassword')}
+              label={t("auth.confirmPassword")}
               value={formData.confirmPassword}
-              onChangeText={(text) => updateFormData('confirmPassword', text)}
+              onChangeText={(text) => updateFormData("confirmPassword", text)}
               error={errors.confirmPassword}
               secureTextEntry
               placeholder="••••••••"
@@ -215,21 +222,23 @@ export default function SignUpScreen() {
             {/* User Type Selector */}
             <UserTypeSelector
               selectedType={formData.userType}
-              onTypeSelect={(type) => updateFormData('userType', type)}
+              onTypeSelect={(type) => updateFormData("userType", type)}
               error={errors.userType}
             />
 
             {/* Terms and Conditions */}
             <Checkbox
               checked={formData.acceptTerms}
-              onToggle={() => updateFormData('acceptTerms', !formData.acceptTerms)}
-              label={t('auth.acceptTerms')}
+              onToggle={() =>
+                updateFormData("acceptTerms", !formData.acceptTerms)
+              }
+              label={t("auth.acceptTerms")}
               error={errors.acceptTerms}
             />
 
             {/* Sign Up Button */}
             <Button
-              title={t('auth.createAccountButton')}
+              title={t("auth.createAccountButton")}
               onPress={handleSignUp}
               loading={loading}
               variant="primary"
@@ -240,12 +249,14 @@ export default function SignUpScreen() {
 
             {/* Sign In Link */}
             <View style={styles.signInContainer}>
-              <Text style={[styles.signInText, { color: colors.mutedForeground }]}>
-                {t('auth.alreadyHaveAccount')}
+              <Text
+                style={[styles.signInText, { color: colors.mutedForeground }]}
+              >
+                {t("auth.alreadyHaveAccount")}
               </Text>
-              <Pressable onPress={() => router.push('/(auth)/sign-in' as any)}>
+              <Pressable onPress={() => router.push("/(auth)/sign-in" as any)}>
                 <Text style={[styles.signInLink, { color: colors.primary }]}>
-                  {t('auth.signIn')}
+                  {t("auth.signIn")}
                 </Text>
               </Pressable>
             </View>
@@ -266,30 +277,30 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: spacing.lg,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   formCard: {
     maxWidth: 400,
-    alignSelf: 'center',
-    width: '100%',
+    alignSelf: "center",
+    width: "100%",
   },
   title: {
-    fontSize: typography.fontSize['2xl'],
+    fontSize: typography.fontSize["2xl"],
     fontWeight: typography.fontWeight.bold as any,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: spacing.xs,
   },
   subtitle: {
     fontSize: typography.fontSize.base,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: spacing.lg,
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: spacing.md,
   },
   rowRTL: {
-    flexDirection: 'row-reverse',
+    flexDirection: "row-reverse",
   },
   halfWidth: {
     flex: 1,
@@ -298,9 +309,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
   signInContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: spacing.lg,
     gap: spacing.xs,
   },
@@ -310,6 +321,6 @@ const styles = StyleSheet.create({
   signInLink: {
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium as any,
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
   },
 });

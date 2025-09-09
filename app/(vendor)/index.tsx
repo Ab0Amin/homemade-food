@@ -142,9 +142,7 @@ export default function VendorDashboardScreen() {
             <CardHeader>
               <View style={styles.alertHeader}>
                 <Text style={styles.alertTitle}>⚠️ Pending Orders</Text>
-                <Badge status="pending" size="sm">
-                  {pendingOrders.length}
-                </Badge>
+                <Badge>{pendingOrders.length}</Badge>
               </View>
             </CardHeader>
             <CardContent>
