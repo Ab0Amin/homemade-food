@@ -1,9 +1,18 @@
 import React from "react";
-import { StyleSheet, ScrollView, Pressable, Alert } from "react-native";
+import { StyleSheet, ScrollView, Alert, Pressable } from "react-native";
 import { Text, View } from "@/components/Themed";
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardContent,
+  Badge,
+  LoadingScreen,
+} from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { useVendor, useVendorMeals, useVendorOrders } from "@/hooks/useVendor";
 import { router } from "expo-router";
+import { colors, spacing, typography, borderRadius } from "@/constants/Design";
 
 export default function VendorDashboardScreen() {
   const { user, signOut } = useAuth();
@@ -26,11 +35,7 @@ export default function VendorDashboardScreen() {
   };
 
   if (vendorLoading) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   if (!vendor) {
@@ -43,21 +48,25 @@ export default function VendorDashboardScreen() {
               Let's set up your cooking business
             </Text>
 
-            <View style={styles.setupCard}>
-              <Text style={styles.setupTitle}>
-                Complete Your Vendor Profile
-              </Text>
-              <Text style={styles.setupDescription}>
-                Add your business information, location, and start listing your
-                delicious meals!
-              </Text>
-              <Pressable
-                style={styles.setupButton}
-                onPress={handleCreateVendorProfile}
-              >
-                <Text style={styles.setupButtonText}>Setup Profile</Text>
-              </Pressable>
-            </View>
+            <Card variant="elevated" style={styles.setupCard}>
+              <CardHeader>
+                <Text style={styles.setupTitle}>
+                  Complete Your Vendor Profile
+                </Text>
+              </CardHeader>
+              <CardContent>
+                <Text style={styles.setupDescription}>
+                  Add your business information, location, and start listing
+                  your delicious meals!
+                </Text>
+                <Button
+                  title="Setup Profile"
+                  onPress={handleCreateVendorProfile}
+                  variant="primary"
+                  fullWidth
+                />
+              </CardContent>
+            </Card>
           </View>
         </View>
       </ScrollView>
@@ -81,67 +90,85 @@ export default function VendorDashboardScreen() {
         </View>
 
         <View style={styles.statsSection}>
-          <View style={styles.statCard}>
+          <Card style={styles.statCard}>
             <Text style={styles.statNumber}>{activeMeals.length}</Text>
             <Text style={styles.statLabel}>Active Meals</Text>
-          </View>
+          </Card>
 
-          <View style={styles.statCard}>
+          <Card style={styles.statCard}>
             <Text style={styles.statNumber}>{pendingOrders.length}</Text>
             <Text style={styles.statLabel}>Pending Orders</Text>
-          </View>
+          </Card>
 
-          <View style={styles.statCard}>
+          <Card style={styles.statCard}>
             <Text style={styles.statNumber}>{todayOrders.length}</Text>
             <Text style={styles.statLabel}>Today's Orders</Text>
-          </View>
+          </Card>
         </View>
 
         <View style={styles.quickActionsSection}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
 
-          <Pressable
-            style={styles.actionButton}
+          <Button
+            title="Add New Meal"
             onPress={() => router.push("/(vendor)/add-meal")}
-          >
-            <Text style={styles.actionButtonText}>➕ Add New Meal</Text>
-          </Pressable>
-
-          <Pressable
+            variant="primary"
+            fullWidth
+            size="md"
             style={styles.actionButton}
+          />
+
+          <Button
+            title="Manage Meals"
             onPress={() => router.push("/(vendor)/meals")}
-          >
-            <Text style={styles.actionButtonText}>🍽️ Manage Meals</Text>
-          </Pressable>
-
-          <Pressable
+            variant="outline"
+            fullWidth
+            size="md"
             style={styles.actionButton}
+          />
+
+          <Button
+            title="View Orders"
             onPress={() => router.push("/(vendor)/orders")}
-          >
-            <Text style={styles.actionButtonText}>📦 View Orders</Text>
-          </Pressable>
+            variant="outline"
+            fullWidth
+            size="md"
+            style={styles.actionButton}
+          />
         </View>
 
         {pendingOrders.length > 0 && (
-          <View style={styles.alertSection}>
-            <Text style={styles.alertTitle}>⚠️ Pending Orders</Text>
-            <Text style={styles.alertText}>
-              You have {pendingOrders.length} pending order(s) that need your
-              attention.
-            </Text>
-            <Pressable
-              style={styles.alertButton}
-              onPress={() => router.push("/(vendor)/orders")}
-            >
-              <Text style={styles.alertButtonText}>View Orders</Text>
-            </Pressable>
-          </View>
+          <Card style={styles.alertSection}>
+            <CardHeader>
+              <View style={styles.alertHeader}>
+                <Text style={styles.alertTitle}>⚠️ Pending Orders</Text>
+                <Badge status="pending" size="sm">
+                  {pendingOrders.length}
+                </Badge>
+              </View>
+            </CardHeader>
+            <CardContent>
+              <Text style={styles.alertText}>
+                You have {pendingOrders.length} pending order(s) that need your
+                attention.
+              </Text>
+              <Button
+                title="View Orders"
+                onPress={() => router.push("/(vendor)/orders")}
+                variant="secondary"
+                size="sm"
+              />
+            </CardContent>
+          </Card>
         )}
 
         <View style={styles.footer}>
-          <Pressable style={styles.signOutButton} onPress={signOut}>
-            <Text style={styles.signOutText}>Sign Out</Text>
-          </Pressable>
+          <Button
+            title="Sign Out"
+            onPress={signOut}
+            variant="destructive"
+            size="sm"
+          />
         </View>
       </View>
     </ScrollView>
@@ -151,157 +178,116 @@ export default function VendorDashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   content: {
-    padding: 20,
+    padding: spacing.lg,
   },
   loadingText: {
-    fontSize: 18,
+    fontSize: typography.fontSize.lg,
     textAlign: "center",
     marginTop: 100,
+    color: colors.foreground,
   },
   welcomeSection: {
-    marginTop: 40,
+    marginTop: spacing["3xl"],
   },
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 8,
+    fontSize: typography.fontSize["2xl"], // H1 equivalent
+    fontWeight: typography.fontWeight.medium as any,
+    marginBottom: spacing.xs,
     textAlign: "center",
+    color: colors.foreground,
   },
   subtitle: {
-    fontSize: 16,
-    opacity: 0.7,
+    fontSize: typography.fontSize.base, // Body text
     textAlign: "center",
-    marginBottom: 40,
+    marginBottom: spacing["3xl"],
+    color: colors.mutedForeground,
   },
   setupCard: {
-    backgroundColor: "#f0f8ff",
-    padding: 24,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#007AFF",
-    alignItems: "center",
+    backgroundColor: colors.accent,
+    borderColor: colors.primary,
   },
   setupTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#007AFF",
-    marginBottom: 12,
+    fontSize: typography.fontSize.lg, // H3 equivalent
+    fontWeight: typography.fontWeight.medium as any,
+    color: "#ff6b35", // Food orange
+    marginBottom: spacing.sm,
   },
   setupDescription: {
-    fontSize: 16,
+    fontSize: typography.fontSize.base, // Body text
     textAlign: "center",
-    marginBottom: 20,
-    lineHeight: 22,
-  },
-  setupButton: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  setupButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "600",
+    marginBottom: spacing.lg,
+    lineHeight: typography.lineHeight.normal * typography.fontSize.base,
+    color: colors.foreground,
   },
   header: {
-    marginBottom: 30,
+    marginBottom: spacing["2xl"],
   },
   greeting: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 4,
+    fontSize: typography.fontSize.xl, // H2 equivalent
+    fontWeight: typography.fontWeight.medium as any,
+    marginBottom: spacing.xs,
+    color: colors.foreground,
   },
   statsSection: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 30,
-    gap: 12,
+    marginBottom: spacing["2xl"],
+    gap: spacing.sm,
   },
   statCard: {
     flex: 1,
-    backgroundColor: "#f9f9f9",
-    padding: 20,
-    borderRadius: 12,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#eee",
+    padding: spacing.lg,
   },
   statNumber: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#007AFF",
-    marginBottom: 4,
+    fontSize: typography.fontSize["2xl"], // More reasonable size
+    fontWeight: typography.fontWeight.semibold as any,
+    color: "#ff6b35", // Food orange
+    marginBottom: spacing.xs,
   },
   statLabel: {
-    fontSize: 14,
-    color: "#666",
+    fontSize: typography.fontSize.sm,
+    color: colors.mutedForeground,
     textAlign: "center",
   },
   quickActionsSection: {
-    marginBottom: 30,
+    marginBottom: spacing["2xl"],
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
+    fontSize: typography.fontSize.lg, // H3 equivalent
+    fontWeight: typography.fontWeight.medium as any,
+    marginBottom: spacing.md,
+    color: colors.foreground,
   },
   actionButton: {
-    backgroundColor: "#f9f9f9",
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "#eee",
-  },
-  actionButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
+    marginBottom: spacing.sm,
   },
   alertSection: {
-    backgroundColor: "#fff3cd",
-    padding: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ffeaa7",
-    marginBottom: 30,
+    backgroundColor: colors.warning + "20", // 20% opacity
+    borderColor: colors.warning,
+    marginBottom: spacing["2xl"],
+  },
+  alertHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   alertTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#856404",
-    marginBottom: 8,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold as any,
+    color: colors.warningForeground,
   },
   alertText: {
-    fontSize: 14,
-    color: "#856404",
-    marginBottom: 12,
-  },
-  alertButton: {
-    backgroundColor: "#ffc107",
-    padding: 8,
-    borderRadius: 6,
-    alignSelf: "flex-start",
-  },
-  alertButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#856404",
+    fontSize: typography.fontSize.sm,
+    color: colors.warningForeground,
+    marginBottom: spacing.md,
+    lineHeight: typography.lineHeight.normal * typography.fontSize.sm,
   },
   footer: {
     alignItems: "center",
-    marginTop: 20,
-  },
-  signOutButton: {
-    padding: 12,
-    borderWidth: 1,
-    borderColor: "#FF3B30",
-    borderRadius: 8,
-  },
-  signOutText: {
-    color: "#FF3B30",
-    fontWeight: "600",
+    marginTop: spacing.lg,
   },
 });

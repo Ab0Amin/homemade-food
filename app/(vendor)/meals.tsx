@@ -1,7 +1,18 @@
 import React from "react";
-import { StyleSheet, ScrollView, Pressable, Alert } from "react-native";
+import { StyleSheet, ScrollView, Alert } from "react-native";
 import { Text, View } from "@/components/Themed";
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+  Badge,
+  LoadingScreen,
+} from "@/components/ui";
 import { useVendorMeals } from "@/hooks/useVendor";
+import { colors, spacing, typography, borderRadius } from "@/constants/Design";
+import { router } from "expo-router";
 
 export default function VendorMealsScreen() {
   const { meals, loading, toggleMealAvailability, deleteMeal } =
@@ -38,11 +49,7 @@ export default function VendorMealsScreen() {
   };
 
   if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading your meals...</Text>
-      </View>
-    );
+    return <LoadingScreen message="Loading your meals..." />;
   }
 
   return (
@@ -61,110 +68,93 @@ export default function VendorMealsScreen() {
             <Text style={styles.emptyDescription}>
               Start by adding your first delicious meal to attract customers!
             </Text>
-            <Pressable style={styles.addButton}>
-              <Text style={styles.addButtonText}>Add Your First Meal</Text>
-            </Pressable>
+            <Button
+              title="Add Your First Meal"
+              onPress={() => router.push("/(vendor)/add-meal")}
+              variant="primary"
+            />
           </View>
         ) : (
           <View style={styles.mealsList}>
             {meals.map((meal) => (
-              <View key={meal.id} style={styles.mealCard}>
-                <View style={styles.mealHeader}>
-                  <View style={styles.mealInfo}>
-                    <Text style={styles.mealTitle}>{meal.title}</Text>
-                    <Text style={styles.mealPrice}>
-                      ${meal.price.toFixed(2)}
-                    </Text>
-                  </View>
-                  <View style={styles.mealStatus}>
-                    <View
-                      style={[
-                        styles.statusBadge,
-                        meal.is_available
-                          ? styles.availableBadge
-                          : styles.unavailableBadge,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.statusText,
-                          meal.is_available
-                            ? styles.availableText
-                            : styles.unavailableText,
-                        ]}
-                      >
-                        {meal.is_available ? "Available" : "Unavailable"}
+              <Card key={meal.id} variant="elevated" style={styles.mealCard}>
+                <CardHeader>
+                  <View style={styles.mealHeader}>
+                    <View style={styles.mealInfo}>
+                      <Text style={styles.mealTitle}>{meal.title}</Text>
+                      <Text style={styles.mealPrice}>
+                        ${meal.price.toFixed(2)}
                       </Text>
                     </View>
-                    {!meal.is_approved && (
-                      <View style={[styles.statusBadge, styles.pendingBadge]}>
-                        <Text style={styles.pendingText}>Pending Approval</Text>
-                      </View>
+                    <View style={styles.mealStatus}>
+                      <Badge
+                        status={meal.is_available ? "active" : "inactive"}
+                        size="sm"
+                      >
+                        {meal.is_available ? "Available" : "Unavailable"}
+                      </Badge>
+                      {!meal.is_approved && (
+                        <Badge status="pending" size="sm">
+                          Pending Approval
+                        </Badge>
+                      )}
+                    </View>
+                  </View>
+                </CardHeader>
+
+                <CardContent>
+                  <Text style={styles.mealDescription} numberOfLines={2}>
+                    {meal.description}
+                  </Text>
+
+                  <View style={styles.mealDetails}>
+                    <Badge variant="secondary" size="sm">
+                      🕒 {meal.preparation_time} min
+                    </Badge>
+                    <Badge variant="secondary" size="sm">
+                      👥 {meal.serving_size}
+                    </Badge>
+                    {meal.category && (
+                      <Badge variant="secondary" size="sm">
+                        📂 {meal.category.name}
+                      </Badge>
                     )}
                   </View>
-                </View>
+                </CardContent>
 
-                <Text style={styles.mealDescription} numberOfLines={2}>
-                  {meal.description}
-                </Text>
+                <CardFooter>
+                  <View style={styles.mealActions}>
+                    <Button
+                      title="Edit"
+                      onPress={() => {
+                        // TODO: Navigate to edit meal screen
+                        Alert.alert(
+                          "Coming Soon",
+                          "Edit meal functionality will be added next"
+                        );
+                      }}
+                      variant="outline"
+                      size="sm"
+                    />
 
-                <View style={styles.mealDetails}>
-                  <Text style={styles.detailText}>
-                    🕒 {meal.preparation_time} min
-                  </Text>
-                  <Text style={styles.detailText}>👥 {meal.serving_size}</Text>
-                  {meal.category && (
-                    <Text style={styles.detailText}>
-                      📂 {meal.category.name}
-                    </Text>
-                  )}
-                </View>
+                    <Button
+                      title={meal.is_available ? "Disable" : "Enable"}
+                      onPress={() =>
+                        handleToggleAvailability(meal.id, meal.is_available)
+                      }
+                      variant={meal.is_available ? "destructive" : "success"}
+                      size="sm"
+                    />
 
-                <View style={styles.mealActions}>
-                  <Pressable
-                    style={[styles.actionButton, styles.editButton]}
-                    onPress={() => {
-                      // TODO: Navigate to edit meal screen
-                      Alert.alert(
-                        "Coming Soon",
-                        "Edit meal functionality will be added next"
-                      );
-                    }}
-                  >
-                    <Text style={styles.editButtonText}>Edit</Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={[
-                      styles.actionButton,
-                      meal.is_available
-                        ? styles.disableButton
-                        : styles.enableButton,
-                    ]}
-                    onPress={() =>
-                      handleToggleAvailability(meal.id, meal.is_available)
-                    }
-                  >
-                    <Text
-                      style={[
-                        styles.actionButtonText,
-                        meal.is_available
-                          ? styles.disableButtonText
-                          : styles.enableButtonText,
-                      ]}
-                    >
-                      {meal.is_available ? "Disable" : "Enable"}
-                    </Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={[styles.actionButton, styles.deleteButton]}
-                    onPress={() => handleDeleteMeal(meal.id, meal.title)}
-                  >
-                    <Text style={styles.deleteButtonText}>Delete</Text>
-                  </Pressable>
-                </View>
-              </View>
+                    <Button
+                      title="Delete"
+                      onPress={() => handleDeleteMeal(meal.id, meal.title)}
+                      variant="destructive"
+                      size="sm"
+                    />
+                  </View>
+                </CardFooter>
+              </Card>
             ))}
           </View>
         )}
@@ -176,195 +166,94 @@ export default function VendorMealsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   content: {
-    padding: 20,
+    padding: spacing.xl,
   },
   loadingText: {
-    fontSize: 16,
+    fontSize: typography.fontSize.base,
     textAlign: "center",
     marginTop: 100,
+    color: colors.foreground,
   },
   header: {
-    marginBottom: 24,
+    marginBottom: spacing["3xl"],
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 4,
+    fontSize: typography.fontSize["2xl"],
+    fontWeight: typography.fontWeight.bold as any,
+    marginBottom: spacing.xs,
+    color: colors.foreground,
   },
   subtitle: {
-    fontSize: 16,
-    color: "#666",
+    fontSize: typography.fontSize.base,
+    color: colors.mutedForeground,
   },
   emptyState: {
     alignItems: "center",
-    marginTop: 80,
-    paddingHorizontal: 40,
+    marginTop: spacing["6xl"],
+    paddingHorizontal: spacing["5xl"],
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 12,
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.bold as any,
+    marginBottom: spacing.md,
     textAlign: "center",
+    color: colors.foreground,
   },
   emptyDescription: {
-    fontSize: 16,
-    color: "#666",
+    fontSize: typography.fontSize.base,
+    color: colors.mutedForeground,
     textAlign: "center",
-    lineHeight: 22,
-    marginBottom: 30,
-  },
-  addButton: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  addButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "600",
+    lineHeight: typography.lineHeight.relaxed * typography.fontSize.base,
+    marginBottom: spacing["4xl"],
   },
   mealsList: {
-    gap: 16,
+    gap: spacing.lg,
   },
   mealCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#eee",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    marginBottom: 0, // Card component handles spacing
   },
   mealHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 12,
   },
   mealInfo: {
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   mealTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 4,
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.bold as any,
+    marginBottom: spacing.xs,
+    color: colors.foreground,
   },
   mealPrice: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#007AFF",
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold as any,
+    color: colors.primary,
   },
   mealStatus: {
     alignItems: "flex-end",
-    gap: 4,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  availableBadge: {
-    backgroundColor: "#D4F4DD",
-  },
-  unavailableBadge: {
-    backgroundColor: "#F4D4D4",
-  },
-  pendingBadge: {
-    backgroundColor: "#FFF3CD",
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  availableText: {
-    color: "#0F7B0F",
-  },
-  unavailableText: {
-    color: "#B91C1C",
-  },
-  pendingText: {
-    color: "#856404",
-    fontSize: 12,
-    fontWeight: "600",
+    gap: spacing.xs,
   },
   mealDescription: {
-    fontSize: 14,
-    color: "#666",
-    lineHeight: 20,
-    marginBottom: 12,
+    fontSize: typography.fontSize.sm,
+    color: colors.mutedForeground,
+    lineHeight: typography.lineHeight.normal * typography.fontSize.sm,
+    marginBottom: spacing.md,
   },
   mealDetails: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12,
-    marginBottom: 16,
-  },
-  detailText: {
-    fontSize: 12,
-    color: "#666",
-    backgroundColor: "#f9f9f9",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
   },
   mealActions: {
     flexDirection: "row",
-    gap: 8,
-  },
-  actionButton: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    alignItems: "center",
-  },
-  editButton: {
-    backgroundColor: "#f0f0f0",
-    borderWidth: 1,
-    borderColor: "#ddd",
-  },
-  editButtonText: {
-    color: "#333",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  enableButton: {
-    backgroundColor: "#D4F4DD",
-    borderWidth: 1,
-    borderColor: "#0F7B0F",
-  },
-  enableButtonText: {
-    color: "#0F7B0F",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  disableButton: {
-    backgroundColor: "#F4D4D4",
-    borderWidth: 1,
-    borderColor: "#B91C1C",
-  },
-  disableButtonText: {
-    color: "#B91C1C",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  deleteButton: {
-    backgroundColor: "#FF3B30",
-  },
-  deleteButtonText: {
-    color: "white",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  actionButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
+    gap: spacing.sm,
+    justifyContent: "flex-end",
   },
 });

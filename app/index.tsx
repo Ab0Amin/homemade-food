@@ -1,12 +1,27 @@
 import React from "react";
-import { StyleSheet, Image, Pressable, Alert } from "react-native";
+import {
+  StyleSheet,
+  Image,
+  Pressable,
+  Alert,
+  View,
+  StatusBar,
+} from "react-native";
 import { router } from "expo-router";
-import { Text, View } from "@/components/Themed";
+import { Text } from "@/components/Themed";
+import { Button } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { testSupabaseConnection } from "@/lib/testSupabase";
+import {
+  useThemeColors,
+  spacing,
+  typography,
+  borderRadius,
+} from "@/constants/Theme";
 
 export default function WelcomeScreen() {
   const { user, loading } = useAuth();
+  const { colors, isDark } = useThemeColors();
 
   const handleTestSupabase = async () => {
     Alert.alert("🔧 Testing...", "Checking Supabase connection...");
@@ -44,7 +59,7 @@ export default function WelcomeScreen() {
           router.replace("/(vendor)");
           break;
         case "admin":
-          router.replace("/(admin)");
+          router.replace("/(vendor)"); // Redirect admin to vendor for now
           break;
         default:
           router.replace("/(customer)");
@@ -54,50 +69,79 @@ export default function WelcomeScreen() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading...</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.loadingText, { color: colors.foreground }]}>
+          Loading...
+        </Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar
+        barStyle={isDark ? "light-content" : "dark-content"}
+        backgroundColor={colors.background}
+      />
       <View style={styles.header}>
         <Image
           source={require("@/assets/images/icon.png")}
           style={styles.logo}
           resizeMode="contain"
         />
-        <Text style={styles.title}>Homemade Food Marketplace</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.foreground }]}>
+          Homemade Food Marketplace
+        </Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
           Discover delicious homemade meals from local cooks
         </Text>
       </View>
 
       <View style={styles.buttonContainer}>
-        <Pressable
-          style={[styles.button, styles.customerButton]}
-          onPress={() => router.push("/(auth)/sign-in?type=customer")}
-        >
-          <Text style={styles.buttonText}>I'm a Customer</Text>
-          <Text style={styles.buttonSubtext}>Browse and order meals</Text>
-        </Pressable>
+        <View style={styles.buttonWrapper}>
+          <Button
+            title="I'm a Customer"
+            onPress={() => router.push("/(auth)/sign-in?type=customer")}
+            variant="secondary"
+            size="md"
+            fullWidth
+            style={styles.customerButton}
+          />
+          <Text
+            style={[styles.buttonSubtext, { color: colors.mutedForeground }]}
+          >
+            Browse and order meals
+          </Text>
+        </View>
 
-        <Pressable
-          style={[styles.button, styles.vendorButton]}
-          onPress={() => router.push("/(auth)/sign-in?type=vendor")}
-        >
-          <Text style={styles.buttonText}>I'm a Cook</Text>
-          <Text style={styles.buttonSubtext}>Sell your homemade food</Text>
-        </Pressable>
+        <View style={styles.buttonWrapper}>
+          <Button
+            title="I'm a Cook"
+            onPress={() => router.push("/(auth)/sign-in?type=vendor")}
+            variant="primary"
+            size="md"
+            fullWidth
+            style={styles.vendorButton}
+          />
+          <Text
+            style={[styles.buttonSubtext, { color: colors.mutedForeground }]}
+          >
+            Sell your homemade food
+          </Text>
+        </View>
       </View>
 
       <View style={styles.footer}>
         <Pressable onPress={() => router.push("/(auth)/sign-up")}>
-          <Text style={styles.linkText}>Don't have an account? Sign up</Text>
+          <Text style={[styles.linkText, { color: colors.primary }]}>
+            Don't have an account? Sign up
+          </Text>
         </Pressable>
 
-        <Pressable style={styles.testButton} onPress={handleTestSupabase}>
+        <Pressable
+          style={[styles.testButton, { backgroundColor: colors.success }]}
+          onPress={handleTestSupabase}
+        >
           <Text style={styles.testButtonText}>🔧 Test Supabase Connection</Text>
         </Pressable>
       </View>
@@ -108,82 +152,79 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: spacing.xl,
     justifyContent: "space-between",
+    // backgroundColor will be set dynamically
   },
   header: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 60,
+    marginTop: spacing["6xl"],
   },
   logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 30,
+    width: 100,
+    height: 100,
+    marginBottom: spacing["4xl"],
   },
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
+    fontSize: typography.fontSize["2xl"], // H1 equivalent
+    fontWeight: typography.fontWeight.medium as any,
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: spacing.sm,
+    // color will be set dynamically
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: typography.fontSize.base, // Body text
     textAlign: "center",
-    opacity: 0.7,
-    marginBottom: 40,
+    marginBottom: spacing["5xl"],
+    // color will be set dynamically
+    lineHeight: typography.lineHeight.normal * typography.fontSize.base,
   },
   buttonContainer: {
-    gap: 16,
-    marginBottom: 40,
+    gap: spacing.lg,
+    marginBottom: spacing["5xl"],
   },
-  button: {
-    padding: 20,
-    borderRadius: 12,
+  buttonWrapper: {
     alignItems: "center",
+    gap: spacing.xs,
   },
   customerButton: {
-    backgroundColor: "#007AFF",
+    // Button component will handle the styling
   },
   vendorButton: {
-    backgroundColor: "#FF6B35",
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 4,
+    // Button component will handle the styling
   },
   buttonSubtext: {
-    color: "white",
-    fontSize: 14,
-    opacity: 0.9,
+    fontSize: typography.fontSize.sm,
+    // color will be set dynamically
+    textAlign: "center",
   },
   footer: {
     alignItems: "center",
-    paddingBottom: 40,
-    gap: 16,
+    paddingBottom: spacing["5xl"],
+    gap: spacing.lg,
   },
   linkText: {
-    fontSize: 16,
-    color: "#007AFF",
+    fontSize: typography.fontSize.base,
     textDecorationLine: "underline",
+    // color will be set dynamically
   },
   testButton: {
-    backgroundColor: "#34C759",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-    marginTop: 8,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+    marginTop: spacing.sm,
+    // backgroundColor will be set dynamically
   },
   testButtonText: {
     color: "white",
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold as any,
   },
   loadingText: {
-    fontSize: 18,
+    fontSize: typography.fontSize.lg,
     textAlign: "center",
+    // color will be set dynamically in loading component
   },
 });
