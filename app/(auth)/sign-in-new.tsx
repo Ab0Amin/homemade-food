@@ -27,6 +27,7 @@ interface FormErrors {
 }
 
 export default function SignInScreen() {
+  // teset
   const { type } = useLocalSearchParams<{ type?: string }>();
   const { signIn } = useAuth();
   const { t } = useLocalization();
