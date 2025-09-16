@@ -196,6 +196,29 @@ The app includes built-in database testing:
 3. **Session Management**: Automatic token refresh and state management
 4. **Profile Updates**: Synced with `public.users` table
 
+## 🌐 Web Deployment
+
+### Quick Deployment
+```bash
+# Build for web
+npm run build:web
+
+# Preview locally
+npm run preview
+
+# Deploy to Netlify (drag & drop dist/ folder to netlify.com/drop)
+# Or use automated deployment:
+npm run deploy:netlify
+```
+
+### Deployment Platforms
+- **Netlify**: `npm run deploy:netlify` (Recommended)
+- **Vercel**: `npm run deploy:vercel` 
+- **GitHub Pages**: `npx gh-pages -d dist`
+- **Custom**: Upload `dist/` folder contents
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
+
 ## 📱 Deployment
 
 ### Expo Build

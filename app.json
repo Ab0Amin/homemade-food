@@ -26,11 +26,19 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "Homemade Food",
+      "shortName": "HomemadeFood",
+      "lang": "en",
+      "scope": "/",
+      "themeColor": "#FF6B35",
+      "backgroundColor": "#ffffff",
+      "display": "standalone",
+      "orientation": "portrait",
+      "startUrl": "/",
+      "crossOriginIsolated": false
     },
-    "plugins": [
-      "expo-router"
-    ],
+    "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
     }

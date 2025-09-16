@@ -1,0 +1,61 @@
+{
+  "name": "Homemade Food",
+  "short_name": "HomemadeFood",
+  "description": "Connect with home cooks and discover amazing homemade meals in your area",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF6B35",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "dir": "auto",
+  "icons": [
+    {
+      "src": "./assets/images/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/images/adaptive-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/images/favicon.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["food", "lifestyle", "business"],
+  "screenshots": [
+    {
+      "src": "./assets/images/splash-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Homemade Food App"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse Meals",
+      "short_name": "Browse",
+      "description": "Browse available homemade meals",
+      "url": "/browse",
+      "icons": [{ "src": "./assets/images/icon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My Orders",
+      "short_name": "Orders",
+      "description": "View your order history",
+      "url": "/orders",
+      "icons": [{ "src": "./assets/images/icon.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
