@@ -1,4 +1,4 @@
-# Supabase Integration Guide for Homemade Food Marketplace
+# Supabase Setup Instructions
 
 ## Step 1: Setup Supabase Project
 

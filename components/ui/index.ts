@@ -8,3 +8,4 @@ export { LanguageSelector } from "./LanguageSelector";
 export { AppHeader } from "./AppHeader";
 export { UserTypeSelector } from "./UserTypeSelector";
 export { Checkbox } from "./Checkbox";
+export { DatabaseTestCard } from "./DatabaseTestCard";

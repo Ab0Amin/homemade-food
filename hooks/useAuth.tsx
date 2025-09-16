@@ -90,6 +90,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     userData: Partial<User>
   ) => {
     try {
+      // First check if email already exists
+      const { data: existingUser } = await supabase
+        .from("users")
+        .select("email")
+        .eq("email", email)
+        .limit(1);
+
+      if (existingUser && existingUser.length > 0) {
+        throw new Error("User with this email already exists");
+      }
+
+      // Sign up with Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -98,36 +110,57 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
 
       if (data.user) {
-        // Create user profile
+        // Create user profile in public.users table
         const { error: profileError } = await supabase.from("users").insert([
           {
             id: data.user.id,
-            email: data.user.email,
-            full_name: userData.full_name,
-            phone_number: userData.phone_number,
+            email: data.user.email || email,
+            full_name: userData.full_name || "",
+            phone_number: userData.phone_number || null,
             user_type: userData.user_type || "customer",
           },
         ]);
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error("Profile creation error:", profileError);
+          // If profile creation fails, we should ideally clean up the auth user
+          // but for now, we'll just throw the error
+          throw new Error(`Profile creation failed: ${profileError.message}`);
+        }
+
+        console.log("✅ User created successfully:", {
+          authId: data.user.id,
+          email: data.user.email,
+          userType: userData.user_type,
+        });
       }
 
       return { error: null };
-    } catch (error) {
+    } catch (error: any) {
+      console.error("❌ Signup error:", error);
       return { error };
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
+
+      if (data.user) {
+        console.log("✅ User signed in successfully:", {
+          id: data.user.id,
+          email: data.user.email,
+        });
+      }
+
       return { error: null };
-    } catch (error) {
+    } catch (error: any) {
+      console.error("❌ Sign in error:", error);
       return { error };
     }
   };
