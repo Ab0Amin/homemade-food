@@ -1,21 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   ScrollView,
-  Pressable,
   Alert,
-  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
 } from "react-native";
+import { router } from "expo-router";
 import { Text, View } from "@/components/Themed";
+import {
+  Button,
+  Input,
+  Card,
+  CardHeader,
+  CardContent,
+  LoadingScreen,
+} from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { useVendor } from "@/hooks/useVendor";
+import { useLocalization } from "@/constants/localization";
+import { useThemeColors, spacing, typography } from "@/constants/Theme";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+
+interface FormData {
+  business_name: string;
+  description: string;
+  address: string;
+  city: string;
+  phone_number: string;
+  whatsapp_number: string;
+}
 
 export default function VendorProfileScreen() {
-  const { user, signOut } = useAuth();
-  const { vendor, createVendorProfile, updateVendorProfile } = useVendor();
+  const { user } = useAuth();
+  const {
+    vendor,
+    createVendorProfile,
+    updateVendorProfile,
+    loading: vendorLoading,
+  } = useVendor();
+  const { t } = useLocalization();
+  const { colors } = useThemeColors();
 
-  const [isEditing, setIsEditing] = useState(!vendor); // Auto-edit if no vendor profile
-  const [formData, setFormData] = useState({
+  const [isEditing, setIsEditing] = useState(!vendor);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
     business_name: vendor?.business_name || "",
     description: vendor?.description || "",
     address: vendor?.address || "",
@@ -23,7 +53,20 @@ export default function VendorProfileScreen() {
     phone_number: vendor?.phone_number || user?.phone_number || "",
     whatsapp_number: vendor?.whatsapp_number || "",
   });
-  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (vendor) {
+      setFormData({
+        business_name: vendor.business_name || "",
+        description: vendor.description || "",
+        address: vendor.address || "",
+        city: vendor.city || "",
+        phone_number: vendor.phone_number || user?.phone_number || "",
+        whatsapp_number: vendor.whatsapp_number || "",
+      });
+      setIsEditing(false);
+    }
+  }, [vendor, user]);
 
   const handleSave = async () => {
     if (
@@ -37,15 +80,12 @@ export default function VendorProfileScreen() {
     }
 
     setLoading(true);
-
     try {
       if (vendor) {
-        // Update existing profile
         const { error } = await updateVendorProfile(formData);
         if (error) throw error;
         Alert.alert("Success", "Profile updated successfully!");
       } else {
-        // Create new profile
         const { error } = await createVendorProfile({
           ...formData,
           is_verified: false,
@@ -54,9 +94,8 @@ export default function VendorProfileScreen() {
           total_orders: 0,
         });
         if (error) throw error;
-        Alert.alert("Success", "Vendor profile created successfully!");
+        Alert.alert("Success", "Profile created successfully!");
       }
-
       setIsEditing(false);
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to save profile");
@@ -65,223 +104,186 @@ export default function VendorProfileScreen() {
     }
   };
 
-  const handleCancel = () => {
-    if (vendor) {
-      // Reset to original values
-      setFormData({
-        business_name: vendor.business_name,
-        description: vendor.description || "",
-        address: vendor.address,
-        city: vendor.city,
-        phone_number: vendor.phone_number,
-        whatsapp_number: vendor.whatsapp_number || "",
-      });
-      setIsEditing(false);
-    }
+  const updateFormData = (field: keyof FormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  if (vendorLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.title}>
-            {vendor ? "Vendor Profile" : "Setup Your Vendor Profile"}
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      {/* Header */}
+      <View style={[styles.header, { backgroundColor: colors.card }]}>
+        <View style={styles.headerContent}>
+          <Pressable onPress={() => router.back()} style={styles.backButton}>
+            <FontAwesome
+              name="arrow-left"
+              size={20}
+              color={colors.foreground}
+            />
+          </Pressable>
+          <Text style={[styles.headerTitle, { color: colors.foreground }]}>
+            Profile Settings
           </Text>
-          {vendor && !isEditing && (
-            <Pressable
-              style={styles.editButton}
-              onPress={() => setIsEditing(true)}
-            >
-              <Text style={styles.editButtonText}>Edit</Text>
-            </Pressable>
-          )}
         </View>
-
-        <View style={styles.form}>
-          <View style={styles.field}>
-            <Text style={styles.label}>Business Name *</Text>
-            {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={formData.business_name}
-                onChangeText={(text) =>
-                  setFormData((prev) => ({ ...prev, business_name: text }))
-                }
-                placeholder="Enter your business name"
-                editable={!loading}
-              />
-            ) : (
-              <Text style={styles.value}>
-                {vendor?.business_name || "Not set"}
-              </Text>
-            )}
-          </View>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>Description</Text>
-            {isEditing ? (
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                value={formData.description}
-                onChangeText={(text) =>
-                  setFormData((prev) => ({ ...prev, description: text }))
-                }
-                placeholder="Tell customers about your cooking style and specialties"
-                multiline
-                numberOfLines={4}
-                editable={!loading}
-              />
-            ) : (
-              <Text style={styles.value}>
-                {vendor?.description || "No description"}
-              </Text>
-            )}
-          </View>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>Address *</Text>
-            {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={formData.address}
-                onChangeText={(text) =>
-                  setFormData((prev) => ({ ...prev, address: text }))
-                }
-                placeholder="Enter your full address"
-                editable={!loading}
-              />
-            ) : (
-              <Text style={styles.value}>{vendor?.address || "Not set"}</Text>
-            )}
-          </View>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>City *</Text>
-            {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={formData.city}
-                onChangeText={(text) =>
-                  setFormData((prev) => ({ ...prev, city: text }))
-                }
-                placeholder="Enter your city"
-                editable={!loading}
-              />
-            ) : (
-              <Text style={styles.value}>{vendor?.city || "Not set"}</Text>
-            )}
-          </View>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>Phone Number *</Text>
-            {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={formData.phone_number}
-                onChangeText={(text) =>
-                  setFormData((prev) => ({ ...prev, phone_number: text }))
-                }
-                placeholder="Enter your phone number"
-                keyboardType="phone-pad"
-                editable={!loading}
-              />
-            ) : (
-              <Text style={styles.value}>
-                {vendor?.phone_number || "Not set"}
-              </Text>
-            )}
-          </View>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>WhatsApp Number</Text>
-            {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={formData.whatsapp_number}
-                onChangeText={(text) =>
-                  setFormData((prev) => ({ ...prev, whatsapp_number: text }))
-                }
-                placeholder="Enter your WhatsApp number (optional)"
-                keyboardType="phone-pad"
-                editable={!loading}
-              />
-            ) : (
-              <Text style={styles.value}>
-                {vendor?.whatsapp_number || "Not provided"}
-              </Text>
-            )}
-          </View>
-
-          {vendor && !isEditing && (
-            <View style={styles.statusSection}>
-              <View style={styles.statusItem}>
-                <Text style={styles.label}>Status</Text>
-                <Text
-                  style={[
-                    styles.status,
-                    vendor.is_verified ? styles.verified : styles.pending,
-                  ]}
-                >
-                  {vendor.is_verified
-                    ? "✅ Verified"
-                    : "⏳ Pending Verification"}
-                </Text>
-              </View>
-
-              <View style={styles.statusItem}>
-                <Text style={styles.label}>Rating</Text>
-                <Text style={styles.value}>{vendor.rating.toFixed(1)} ⭐</Text>
-              </View>
-
-              <View style={styles.statusItem}>
-                <Text style={styles.label}>Total Orders</Text>
-                <Text style={styles.value}>{vendor.total_orders}</Text>
-              </View>
-            </View>
-          )}
-        </View>
-
-        {isEditing && (
-          <View style={styles.buttonContainer}>
-            <Pressable
-              style={[
-                styles.button,
-                styles.saveButton,
-                loading && styles.buttonDisabled,
-              ]}
-              onPress={handleSave}
-              disabled={loading}
-            >
-              <Text style={styles.saveButtonText}>
-                {loading
-                  ? "Saving..."
-                  : vendor
-                  ? "Save Changes"
-                  : "Create Profile"}
-              </Text>
-            </Pressable>
-
-            {vendor && (
-              <Pressable
-                style={[styles.button, styles.cancelButton]}
-                onPress={handleCancel}
-                disabled={loading}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </Pressable>
-            )}
-          </View>
-        )}
-
-        {vendor && !isEditing && (
-          <View style={styles.footer}>
-            <Pressable style={styles.signOutButton} onPress={signOut}>
-              <Text style={styles.signOutText}>Sign Out</Text>
-            </Pressable>
-          </View>
-        )}
       </View>
-    </ScrollView>
+
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Profile Photo Section */}
+        <Card style={styles.photoCard}>
+          <CardContent>
+            <View style={styles.photoSection}>
+              <View
+                style={[
+                  styles.photoPlaceholder,
+                  { backgroundColor: colors.secondary },
+                ]}
+              >
+                <FontAwesome
+                  name="camera"
+                  size={32}
+                  color={colors.mutedForeground}
+                />
+              </View>
+              <Text
+                style={[styles.photoText, { color: colors.mutedForeground }]}
+              >
+                Profile Photo (Coming Soon)
+              </Text>
+            </View>
+          </CardContent>
+        </Card>
+
+        {/* Basic Information */}
+        <Card style={styles.formCard}>
+          <CardHeader>
+            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+              Business Information
+            </Text>
+          </CardHeader>
+          <CardContent>
+            <Input
+              label="Business Name *"
+              value={formData.business_name}
+              onChangeText={(text) => updateFormData("business_name", text)}
+              placeholder="Enter your business name"
+              editable={isEditing}
+              style={!isEditing ? styles.readonlyInput : {}}
+            />
+
+            <Input
+              label="Description"
+              value={formData.description}
+              onChangeText={(text) => updateFormData("description", text)}
+              placeholder="Tell customers about your cooking..."
+              multiline
+              numberOfLines={4}
+              editable={isEditing}
+              style={!isEditing ? styles.readonlyInput : {}}
+            />
+
+            <Input
+              label="Address *"
+              value={formData.address}
+              onChangeText={(text) => updateFormData("address", text)}
+              placeholder="Enter your address"
+              editable={isEditing}
+              style={!isEditing ? styles.readonlyInput : {}}
+            />
+
+            <Input
+              label="City *"
+              value={formData.city}
+              onChangeText={(text) => updateFormData("city", text)}
+              placeholder="Enter your city"
+              editable={isEditing}
+              style={!isEditing ? styles.readonlyInput : {}}
+            />
+
+            <Input
+              label="Phone Number *"
+              value={formData.phone_number}
+              onChangeText={(text) => updateFormData("phone_number", text)}
+              placeholder="Enter your phone number"
+              keyboardType="phone-pad"
+              editable={isEditing}
+              style={!isEditing ? styles.readonlyInput : {}}
+            />
+
+            <Input
+              label="WhatsApp Number"
+              value={formData.whatsapp_number}
+              onChangeText={(text) => updateFormData("whatsapp_number", text)}
+              placeholder="Enter your WhatsApp number"
+              keyboardType="phone-pad"
+              editable={isEditing}
+              style={!isEditing ? styles.readonlyInput : {}}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Account Information */}
+        <Card style={styles.formCard}>
+          <CardHeader>
+            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+              Account Information
+            </Text>
+          </CardHeader>
+          <CardContent>
+            <Input
+              label="Full Name (Read-only)"
+              value={user?.full_name || ""}
+              editable={false}
+              style={styles.readonlyInput}
+            />
+
+            <Input
+              label="Email (Read-only)"
+              value={user?.email || ""}
+              editable={false}
+              style={styles.readonlyInput}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <View style={styles.buttonContainer}>
+          {isEditing ? (
+            <View style={styles.buttonRow}>
+              <Button
+                title="Cancel"
+                onPress={() => setIsEditing(false)}
+                variant="outline"
+                style={styles.halfButton}
+              />
+              <Button
+                title={loading ? "Saving..." : "Save Changes"}
+                onPress={handleSave}
+                loading={loading}
+                variant="primary"
+                style={styles.halfButton}
+              />
+            </View>
+          ) : (
+            <Button
+              title="Edit Profile"
+              onPress={() => setIsEditing(true)}
+              variant="primary"
+              fullWidth
+            />
+          )}
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -289,126 +291,76 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  content: {
-    padding: 20,
-  },
   header: {
+    paddingTop: 50,
+    paddingBottom: 16,
+    paddingHorizontal: spacing.lg,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  headerContent: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 30,
+    gap: spacing.md,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
+  backButton: {
+    padding: spacing.xs,
   },
-  editButton: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
+  headerTitle: {
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.semibold as any,
   },
-  editButtonText: {
-    color: "white",
-    fontWeight: "600",
+  scrollView: {
+    flex: 1,
   },
-  form: {
-    marginBottom: 30,
+  scrollContent: {
+    padding: spacing.lg,
+    paddingBottom: 100,
   },
-  field: {
-    marginBottom: 20,
+  photoCard: {
+    marginBottom: spacing.lg,
+    borderRadius: 16,
   },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
-    color: "#333",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: "#fff",
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: "top",
-  },
-  value: {
-    fontSize: 16,
-    padding: 12,
-    backgroundColor: "#f9f9f9",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#eee",
-  },
-  statusSection: {
-    marginTop: 20,
-    padding: 16,
-    backgroundColor: "#f9f9f9",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#eee",
-  },
-  statusItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  photoSection: {
     alignItems: "center",
-    marginBottom: 8,
+    paddingVertical: spacing.lg,
   },
-  status: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  verified: {
-    color: "#34C759",
-  },
-  pending: {
-    color: "#FF9500",
-  },
-  buttonContainer: {
-    gap: 12,
-    marginBottom: 30,
-  },
-  button: {
-    padding: 16,
-    borderRadius: 8,
+  photoPlaceholder: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    justifyContent: "center",
     alignItems: "center",
+    marginBottom: spacing.md,
   },
-  saveButton: {
-    backgroundColor: "#007AFF",
+  photoText: {
+    fontSize: typography.fontSize.sm,
   },
-  saveButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "600",
+  formCard: {
+    marginBottom: spacing.lg,
+    borderRadius: 16,
   },
-  cancelButton: {
-    backgroundColor: "#f0f0f0",
-    borderWidth: 1,
-    borderColor: "#ddd",
+  sectionTitle: {
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.semibold as any,
   },
-  cancelButtonText: {
-    color: "#666",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  buttonDisabled: {
+  readonlyInput: {
     opacity: 0.6,
   },
-  footer: {
-    alignItems: "center",
+  buttonContainer: {
+    paddingTop: spacing.lg,
   },
-  signOutButton: {
-    padding: 12,
-    borderWidth: 1,
-    borderColor: "#FF3B30",
-    borderRadius: 8,
+  buttonRow: {
+    flexDirection: "row",
+    gap: spacing.md,
   },
-  signOutText: {
-    color: "#FF3B30",
-    fontWeight: "600",
+  halfButton: {
+    flex: 1,
   },
 });
