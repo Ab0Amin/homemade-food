@@ -32,13 +32,8 @@ export const UserTypeSelector: React.FC<UserTypeSelectorProps> = ({
     },
     {
       value: "vendor",
-      labelKey: "auth.vendorOption",
+      labelKey: "auth.chefOption",
       iconKey: "👨‍🍳",
-    },
-    {
-      value: "admin",
-      labelKey: "auth.adminOption",
-      iconKey: "⚙️",
     },
   ];
 

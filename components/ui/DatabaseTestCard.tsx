@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { StyleSheet, Alert } from "react-native";
 import { Text, View } from "@/components/Themed";
-import { Button, Card, CardHeader, CardContent } from "@/components/ui";
+import { Button } from "@/components/ui/Button";
+import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { useThemeColors, spacing, typography } from "@/constants/Theme";
 import { useLocalization } from "@/constants/localization";
 import { testConnection, testUserSignup } from "@/lib/supabase-helpers";

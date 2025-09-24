@@ -3,18 +3,32 @@ import { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { User, UserType } from "@/types";
 
+interface SignUpData {
+  email: string;
+  password: string;
+  full_name: string;
+  phone_number?: string;
+  user_type: UserType;
+  date_of_birth?: string;
+  gender?: "male" | "female" | "other";
+  business_name?: string;
+  business_description?: string;
+}
+
 interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  signUp: (
-    email: string,
-    password: string,
-    userData: Partial<User>
-  ) => Promise<{ error: any }>;
+  signUp: (userData: SignUpData) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
   updateProfile: (userData: Partial<User>) => Promise<{ error: any }>;
+  upgradeToVendor: (vendorData: {
+    business_name: string;
+    business_description: string;
+    business_license?: string;
+    website_url?: string;
+  }) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -25,6 +39,7 @@ const AuthContext = createContext<AuthContextType>({
   signIn: async () => ({ error: null }),
   signOut: async () => ({ error: null }),
   updateProfile: async () => ({ error: null }),
+  upgradeToVendor: async () => ({ error: null }),
 });
 
 export const useAuth = () => {
@@ -84,55 +99,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signUp = async (
-    email: string,
-    password: string,
-    userData: Partial<User>
-  ) => {
+  const signUp = async (userData: SignUpData) => {
     try {
-      // First check if email already exists
-      const { data: existingUser } = await supabase
-        .from("users")
-        .select("email")
-        .eq("email", email)
-        .limit(1);
+      console.log("🚀 Simple signup...");
 
-      if (existingUser && existingUser.length > 0) {
-        throw new Error("User with this email already exists");
-      }
-
-      // Sign up with Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+      // Create auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
 
-      if (data.user) {
-        // Create user profile in public.users table
-        const { error: profileError } = await supabase.from("users").insert([
-          {
-            id: data.user.id,
-            email: data.user.email || email,
-            full_name: userData.full_name || "",
-            phone_number: userData.phone_number || null,
-            user_type: userData.user_type || "customer",
-          },
-        ]);
-
-        if (profileError) {
-          console.error("Profile creation error:", profileError);
-          // If profile creation fails, we should ideally clean up the auth user
-          // but for now, we'll just throw the error
-          throw new Error(`Profile creation failed: ${profileError.message}`);
-        }
-
-        console.log("✅ User created successfully:", {
-          authId: data.user.id,
-          email: data.user.email,
-          userType: userData.user_type,
+      if (authData.user) {
+        // Create profile - simple insert
+        const { error: profileError } = await supabase.from("users").insert({
+          id: authData.user.id,
+          email: authData.user.email,
+          full_name: userData.full_name,
+          phone_number: userData.phone_number,
+          user_type: userData.user_type,
+          date_of_birth: userData.date_of_birth,
+          gender: userData.gender,
+          business_name: userData.business_name,
+          business_description: userData.business_description,
         });
+
+        if (profileError) throw profileError;
+        console.log("✅ Signup complete!");
       }
 
       return { error: null };
@@ -193,6 +187,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Simple function to upgrade user to vendor
+  const upgradeToVendor = async (vendorData: {
+    business_name: string;
+    business_description: string;
+    business_license?: string;
+    website_url?: string;
+  }) => {
+    try {
+      if (!user) throw new Error("No user logged in");
+
+      const { error } = await supabase.rpc("upgrade_to_vendor", {
+        user_id: user.id,
+        business_name_param: vendorData.business_name,
+        business_description_param: vendorData.business_description,
+        business_license_param: vendorData.business_license || null,
+        website_url_param: vendorData.website_url || null,
+      });
+
+      if (error) throw error;
+
+      // Update local user state
+      const updatedUser = {
+        ...user,
+        user_type: "vendor" as UserType,
+        business_name: vendorData.business_name,
+        business_description: vendorData.business_description,
+        business_license: vendorData.business_license,
+        website_url: vendorData.website_url,
+      };
+
+      setUser(updatedUser);
+      console.log("✅ User upgraded to vendor successfully");
+
+      return { error: null };
+    } catch (error: any) {
+      console.error("❌ Vendor upgrade error:", error);
+      return { error };
+    }
+  };
+
   const value = {
     session,
     user,
@@ -201,6 +235,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signIn,
     signOut,
     updateProfile,
+    upgradeToVendor,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

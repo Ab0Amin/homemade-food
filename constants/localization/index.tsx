@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from "react";
-import { I18nManager } from "react-native";
+// import { I18nManager } from "react-native"; // Not available in some environments
 import { en } from "./en";
 import { ar } from "./ar";
 import type { TranslationKey } from "./en";
@@ -35,9 +35,10 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const configureRTL = (lang: Language) => {
     const isRTL = lang === "ar";
-    if (I18nManager.isRTL !== isRTL) {
-      I18nManager.allowRTL(isRTL);
-      I18nManager.forceRTL(isRTL);
+    // RTL will be handled via CSS/style direction for web
+    if (typeof document !== "undefined") {
+      document.dir = isRTL ? "rtl" : "ltr";
+      document.documentElement.lang = lang;
     }
   };
 
