@@ -84,6 +84,17 @@ export default function SignInScreen() {
     }
   };
 
+  const getUserTypeLabel = () => {
+    switch (type) {
+      case "customer":
+        return t("auth.customerSignIn");
+      case "vendor":
+        return t("auth.vendorSignIn");
+      default:
+        return t("auth.signInToAccount");
+    }
+  };
+
   const getWelcomeMessage = () => {
     switch (type) {
       case "customer":
@@ -105,13 +116,28 @@ export default function SignInScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* Welcome Header Card */}
+        <Card style={styles.welcomeCard}>
+          <CardHeader>
+            <Text style={[styles.welcomeTitle, { color: colors.foreground }]}>
+              {t("auth.welcomeBack")}
+            </Text>
+            <Text
+              style={[
+                styles.welcomeSubtitle,
+                { color: colors.mutedForeground },
+              ]}
+            >
+              {getUserTypeLabel()}
+            </Text>
+          </CardHeader>
+        </Card>
+
+        {/* Main Form Card */}
         <Card style={styles.formCard}>
           <CardHeader>
             <Text style={[styles.title, { color: colors.foreground }]}>
               {t("auth.signIn")}
-            </Text>
-            <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-              {getWelcomeMessage()}
             </Text>
           </CardHeader>
 
@@ -241,6 +267,14 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     alignSelf: "center",
     width: "100%",
+    borderRadius: 20,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.05)",
   },
   title: {
     fontSize: typography.fontSize["2xl"],
@@ -296,5 +330,31 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium as any,
     textDecorationLine: "underline",
+  },
+
+  // New welcome card styles
+  welcomeCard: {
+    borderRadius: 20,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.05)",
+  },
+  welcomeTitle: {
+    fontSize: 28,
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: spacing.xs,
+    letterSpacing: -0.5,
+  },
+  welcomeSubtitle: {
+    fontSize: 16,
+    textAlign: "center",
+    opacity: 0.8,
+    lineHeight: 22,
   },
 });

@@ -37,6 +37,8 @@ export const ar: TranslationKey = {
     signIn: "تسجيل الدخول",
     signUp: "إنشاء حساب",
     signOut: "تسجيل الخروج",
+    welcomeBack: "أهلاً بك مرة أخرى",
+    signInToAccount: "سجل دخولك إلى حسابك",
     email: "البريد الإلكتروني",
     password: "كلمة المرور",
     confirmPassword: "تأكيد كلمة المرور",
@@ -48,6 +50,7 @@ export const ar: TranslationKey = {
 
     // Sign Up specific
     createAccount: "إنشاء حساب",
+    createNewAccount: "إنشاء حساب جديد",
     fullName: "الاسم الكامل",
     fullNamePlaceholder: "أدخل اسمك الكامل",
     phoneNumber: "رقم الهاتف",

@@ -35,6 +35,8 @@ export const en = {
     signIn: "Sign In",
     signUp: "Sign Up",
     signOut: "Sign Out",
+    welcomeBack: "Welcome Back",
+    signInToAccount: "Sign in to your account",
     email: "Email",
     password: "Password",
     confirmPassword: "Confirm Password",
@@ -46,6 +48,7 @@ export const en = {
 
     // Sign Up specific
     createAccount: "Create Account",
+    createNewAccount: "Create New Account",
     fullName: "Full Name",
     fullNamePlaceholder: "Enter your full name",
     phoneNumber: "Phone Number",

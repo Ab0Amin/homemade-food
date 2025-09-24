@@ -92,9 +92,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   label: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: "500",
-    marginBottom: spacing.xs,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold as any,
+    marginBottom: spacing.sm,
   },
   optionsContainer: {
     gap: spacing.sm,
@@ -102,20 +102,30 @@ const styles = StyleSheet.create({
   option: {
     flexDirection: "row",
     alignItems: "center",
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
+    padding: spacing.lg,
+    borderRadius: 16,
+    borderWidth: 2,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
   },
   icon: {
-    fontSize: typography.fontSize.lg,
-    marginRight: spacing.sm,
+    fontSize: 24,
+    marginRight: spacing.md,
   },
   optionText: {
     fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.medium as any,
     flex: 1,
   },
   errorText: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.fontSize.sm,
     marginTop: spacing.xs,
+    fontWeight: typography.fontWeight.medium as any,
   },
 });

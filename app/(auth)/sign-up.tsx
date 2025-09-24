@@ -170,16 +170,25 @@ export default function SignUpScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Card style={styles.formCard}>
-          <CardHeader>
-            <Text style={[styles.title, { color: colors.foreground }]}>
-              {t("auth.createAccount")}
+        {/* Welcome Card */}
+        <Card style={styles.welcomeCard}>
+          <CardContent>
+            <Text style={[styles.welcomeTitle, { color: colors.foreground }]}>
+              {t("auth.createNewAccount")}
             </Text>
-            <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
+            <Text
+              style={[
+                styles.welcomeSubtitle,
+                { color: colors.mutedForeground },
+              ]}
+            >
               {t("landing.joinOurCommunity")}
             </Text>
-          </CardHeader>
+          </CardContent>
+        </Card>
 
+        {/* Form Card */}
+        <Card style={styles.formCard}>
           <CardContent>
             {/* Name Fields */}
             <Input
@@ -325,6 +334,8 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 40,
+    marginBottom: 20,
   },
   scrollView: {
     flex: 1,
@@ -334,10 +345,38 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     justifyContent: "center",
   },
+  welcomeCard: {
+    marginBottom: spacing.lg,
+    borderRadius: 20,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  welcomeTitle: {
+    fontSize: 28,
+    fontWeight: typography.fontWeight.bold as any,
+    textAlign: "center",
+    marginBottom: spacing.xs,
+  },
+  welcomeSubtitle: {
+    fontSize: typography.fontSize.base,
+    textAlign: "center",
+  },
   formCard: {
-    maxWidth: 400,
-    alignSelf: "center",
-    width: "100%",
+    borderRadius: 20,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   title: {
     fontSize: typography.fontSize["2xl"],
@@ -380,10 +419,7 @@ const styles = StyleSheet.create({
   },
 
   termsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-    paddingHorizontal: 4,
+    marginBottom: spacing.lg,
   },
 
   checkboxContainer: {
@@ -392,11 +428,11 @@ const styles = StyleSheet.create({
   },
 
   checkbox: {
-    width: 20,
-    height: 20,
+    width: 24,
+    height: 24,
     borderWidth: 2,
-    borderRadius: 4,
-    marginRight: 12,
+    borderRadius: 6,
+    marginRight: spacing.sm,
     marginTop: 2,
     justifyContent: "center",
     alignItems: "center",
@@ -409,8 +445,9 @@ const styles = StyleSheet.create({
   },
 
   checkmark: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "bold",
+    color: "white",
   },
 
   termsTextContainer: {
@@ -418,27 +455,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 3,
+    gap: 4,
   },
 
   termsText: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
     lineHeight: 20,
   },
 
   linkText: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
     lineHeight: 20,
-    // textAlign: "center",
-    // verticalAlign: "middle",
     textDecorationLine: "underline",
-    fontWeight: "600",
+    fontWeight: typography.fontWeight.semibold as any,
   },
 
   errorText: {
-    fontSize: 12,
-    marginTop: 8,
-    fontWeight: "500",
+    fontSize: typography.fontSize.sm,
+    marginTop: spacing.xs,
+    fontWeight: typography.fontWeight.medium as any,
   },
 });
