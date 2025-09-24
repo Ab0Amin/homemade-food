@@ -84,14 +84,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               .eq("id", session.user.id)
               .single();
 
-            if (userData?.user_type === "vendor") {
-              router.replace("/(vendor)" as any);
-            } else {
-              router.replace("/(customer)" as any);
-            }
+            // Use replace to prevent going back to auth screens
+            setTimeout(() => {
+              if (userData?.user_type === "vendor") {
+                router.replace("/(vendor)" as any);
+              } else {
+                router.replace("/(customer)" as any);
+              }
+            }, 100);
           } catch (error) {
             console.error("Error redirecting after login:", error);
-            router.replace("/(customer)" as any); // Default fallback
+            setTimeout(() => {
+              router.replace("/(customer)" as any); // Default fallback
+            }, 100);
           }
         }
       } else {

@@ -8,6 +8,7 @@ export default function AuthLayout() {
         options={{
           title: "Sign In",
           headerShown: false,
+          gestureEnabled: false,
         }}
       />
       <Stack.Screen
@@ -15,6 +16,7 @@ export default function AuthLayout() {
         options={{
           title: "Sign Up",
           headerShown: false,
+          gestureEnabled: false,
         }}
       />
     </Stack>

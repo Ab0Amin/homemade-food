@@ -11,6 +11,7 @@ import {
 } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { useVendor, useVendorMeals, useVendorOrders } from "@/hooks/useVendor";
+import { usePreventGoBack } from "@/hooks/usePreventGoBack";
 import { router } from "expo-router";
 import { colors, spacing, typography, borderRadius } from "@/constants/Design";
 
@@ -19,6 +20,8 @@ export default function VendorDashboardScreen() {
   const { vendor, loading: vendorLoading, createVendorProfile } = useVendor();
   const { meals } = useVendorMeals();
   const { orders } = useVendorOrders();
+
+  usePreventGoBack(); // Handle back button behavior
 
   const handleCreateVendorProfile = () => {
     Alert.alert(

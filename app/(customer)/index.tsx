@@ -2,9 +2,11 @@ import React from "react";
 import { StyleSheet, ScrollView, Pressable } from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useAuth } from "@/hooks/useAuth";
+import { usePreventGoBack } from "@/hooks/usePreventGoBack";
 
 export default function CustomerHomeScreen() {
   const { user, signOut } = useAuth();
+  usePreventGoBack(); // Handle back button behavior
 
   return (
     <ScrollView style={styles.container}>
