@@ -66,6 +66,9 @@ export default function WelcomeScreen() {
         default:
           router.replace("/(customer)" as any);
       }
+    } else if (!loading && !user) {
+      // Ensure we're on the landing page when not logged in
+      // This is already handled by the current page being index
     }
   }, [user, loading]);
 

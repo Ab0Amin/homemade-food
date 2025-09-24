@@ -1,5 +1,6 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import { Session, User as SupabaseUser } from "@supabase/supabase-js";
+import { router } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import { User, UserType } from "@/types";
 
@@ -73,6 +74,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(session);
       if (session?.user) {
         await fetchUserProfile(session.user.id);
+
+        // After successful login, redirect based on user type
+        if (event === "SIGNED_IN") {
+          try {
+            const { data: userData } = await supabase
+              .from("users")
+              .select("user_type")
+              .eq("id", session.user.id)
+              .single();
+
+            if (userData?.user_type === "vendor") {
+              router.replace("/(vendor)" as any);
+            } else {
+              router.replace("/(customer)" as any);
+            }
+          } catch (error) {
+            console.error("Error redirecting after login:", error);
+            router.replace("/(customer)" as any); // Default fallback
+          }
+        }
       } else {
         setUser(null);
         setLoading(false);
@@ -163,6 +184,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+
+      // Clear user state manually to ensure immediate update
+      setUser(null);
+      setSession(null);
+
+      // Navigate to sign-in page
+      router.replace("/(auth)/sign-in");
+
       return { error: null };
     } catch (error) {
       return { error };
